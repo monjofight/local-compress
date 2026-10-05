@@ -205,11 +205,13 @@ select {
 .toast {
   position: fixed;
   z-index: 20;
-  left: 50%;
+  inset-inline: 16px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-  translate: -50% 0;
-  max-width: min(440px, calc(100% - 32px));
+  width: fit-content;
+  max-width: 440px;
+  margin-inline: auto;
   padding: 10px 16px;
+  overflow-wrap: anywhere;
   border-radius: 10px;
   background: var(--text);
   color: var(--surface);
@@ -502,6 +504,7 @@ select {
   .sidebar { display: block; border-top: 1px solid var(--border); border-left: 0; }
   .sidebar-body { overflow: visible; }
   .sidebar-footer { position: sticky; bottom: 0; z-index: 4; }
+  .toast { top: calc(env(safe-area-inset-top, 0px) + 68px); bottom: auto; } /* clear of the sticky footer */
   .stage-label { padding: 3px 8px; font-size: 11.5px; }
 }
 
