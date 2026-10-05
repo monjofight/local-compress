@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ローカル圧縮 | 画像・動画をブラウザだけで圧縮</title>
+  <meta name="description" content="画像や動画を、アップロードせずにブラウザの中だけで圧縮できます。圧縮前と圧縮後を見比べながら、画質とサイズを調整できます。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": { "mediabunny": "https://cdn.jsdelivr.net/npm/mediabunny@1.61.1/dist/bundles/mediabunny.min.mjs" } }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-logo" viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5-9 9"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="m22 8-6 4 6 4z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-compare" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-handle" viewBox="0 0 24 24"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M7.5 5h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm7 0h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v10M7.5 9.5 12 14l4.5-4.5M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-error" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/></symbol>
+  </svg>
+
+  <div id="home">
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="./"><span class="logo"><svg class="icon"><use href="#i-logo"/></svg></span>ローカル圧縮</a>
+        <nav class="nav-links" aria-label="ページ内リンク"><a href="#features">特長</a><a href="#faq">よくある質問</a></nav>
+        <span class="safe-badge"><svg class="icon"><use href="#i-lock"/></svg><span>ファイルは送信されません</span></span>
+      </div>
+    </header>
+
+    <main>
+      <section class="container hero">
+        <div>
+          <h1>画像・動画を、<br>ブラウザだけで圧縮</h1>
+          <p class="lead">ファイルはどこにもアップロードされません。圧縮前と圧縮後を見比べながら、画質とサイズを調整できます。</p>
+          <ul class="checklist">
+            <li><svg class="icon"><use href="#i-check"/></svg>アップロード不要。処理はお使いの端末の中だけ</li>
+            <li><svg class="icon"><use href="#i-check"/></svg>登録・インストール不要</li>
+            <li><svg class="icon"><use href="#i-check"/></svg>画像（JPEG・PNG・WebP）も動画（MP4）も</li>
+          </ul>
+        </div>
+
+        <div class="upload-card">
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="file-input" accept="image/*,video/*,.mp4,.mov,.m4v,.webm,.mkv,.heic">
+            <span class="dropzone-icon"><svg class="icon"><use href="#i-upload"/></svg></span>
+            <span class="dropzone-title">ファイルをドラッグ＆ドロップ</span>
+            <span class="dropzone-or">または</span>
+            <span class="btn btn-primary">ファイルを選択</span>
+            <span class="dropzone-formats">JPEG・PNG・WebP・AVIF・GIF・MP4・MOV・WebM</span>
+          </label>
+          <div class="samples">
+            <span>サンプルで試す：</span>
+            <button class="btn btn-sm" id="sample-image" type="button"><svg class="icon"><use href="#i-image"/></svg>画像</button>
+            <button class="btn btn-sm" id="sample-video" type="button" disabled><svg class="icon"><use href="#i-video"/></svg><span id="sample-video-label">動画</span></button>
+          </div>
+          <div class="notes" id="home-notes"></div>
+          <div class="notes" id="video-support-notes"></div>
+        </div>
+      </section>
+
+      <section class="container section" id="features" aria-labelledby="features-title">
+        <h2 id="features-title">特長</h2>
+        <p class="section-lead">よく使う圧縮を、ブラウザの中だけで手早く。</p>
+        <div class="features">
+          <article class="feature">
+            <span class="feature-icon"><svg class="icon"><use href="#i-shield"/></svg></span>
+            <h3>ファイルを送らない</h3>
+            <p>圧縮はブラウザ内蔵の機能を使って、お使いの端末の中で行います。社外秘の資料でも安心です。</p>
+          </article>
+          <article class="feature">
+            <span class="feature-icon"><svg class="icon"><use href="#i-compare"/></svg></span>
+            <h3>圧縮前と見比べる</h3>
+            <p>スライダーで圧縮前と圧縮後を見比べながら、画質とサイズのちょうどいいところを探せます。</p>
+          </article>
+          <article class="feature">
+            <span class="feature-icon"><svg class="icon"><use href="#i-target"/></svg></span>
+            <h3>サイズを指定できる</h3>
+            <p>動画は「25MB以下」のように目標サイズを指定して圧縮できます。メール添付の前などに便利です。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container section" id="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">よくある質問</h2>
+        <p class="section-lead">困ったときはこちらをご覧ください。</p>
+        <div class="faq">
+          <details>
+            <summary>ファイルはサーバーに送信されますか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>送信されません。画像はブラウザの画像書き出し機能、動画はブラウザ内蔵の動画エンコーダー（WebCodecs）で処理します。ページを開いたあとは、Wi‑Fiを切っても使えます。</p>
+          </details>
+          <details>
+            <summary>どんなファイルに対応していますか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>画像はJPEG・PNG・WebP・AVIF・GIF、動画はMP4・MOV・WebM・MKVを読み込めます。書き出しは、画像がJPEG・WebP・PNG、動画がMP4です。iPhoneのHEIC写真とProRes動画は、Chromeでは読み込めません。</p>
+          </details>
+          <details>
+            <summary>どのブラウザで使えますか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>最新のChromeかEdgeをおすすめします。画像の圧縮はほかのブラウザでも動きますが、動画の圧縮はブラウザによって使えないことがあります。</p>
+          </details>
+          <details>
+            <summary>大きな動画でも圧縮できますか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>できます。ただし圧縮後のファイルはいったんメモリ上に作るので、数GBの動画はほかのアプリを閉じてから試してください。かかる時間は動画の長さと端末の性能によります。</p>
+          </details>
+          <details>
+            <summary>動画の圧縮後が一部しか表示されないのはなぜですか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>動画は、再生位置から4秒だけ試しに圧縮したプレビューを圧縮後として表示しています。「動画全体を圧縮」を押すと、全体を圧縮した結果に切り替わります。</p>
+          </details>
+          <details>
+            <summary>書き出した画像に位置情報は残りますか？<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+            <p>残りません。撮影場所や撮影日時などのメタデータは、書き出しの際に取り除かれます。</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container footer">
+      ローカル圧縮 · <a href="https://github.com/monjofight/local-compress">ソースコード（GitHub）</a> · 動画の読み書きに <a href="https://mediabunny.dev">Mediabunny</a>（MPL-2.0）を使用しています。
+    </footer>
+  </div>
+
+  <div class="editor" id="editor" hidden>
+    <header class="appbar">
+      <button class="btn btn-ghost btn-sm" id="back" type="button"><svg class="icon"><use href="#i-arrow-left"/></svg>戻る</button>
+      <span class="appbar-divider" aria-hidden="true"></span>
+      <div class="file">
+        <span class="file-icon"><svg class="icon"><use id="file-icon" href="#i-image"/></svg></span>
+        <div class="file-text"><span class="file-name" id="file-name"></span><span class="file-meta" id="file-meta"></span></div>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <div class="canvas-column">
+        <div class="stage" id="stage" data-kind="image" tabindex="0" aria-label="比較ビュー。左が圧縮前、右が圧縮後です。">
+          <div class="layer"><div class="content" id="before-content"><img id="before-img" alt=""><canvas id="before-canvas" hidden></canvas></div></div>
+          <div class="layer" id="after-layer"><div class="content" id="after-content"><img id="after-img" alt=""><canvas id="after-canvas" hidden></canvas></div></div>
+          <div class="after-notice" id="after-notice" hidden><span id="after-notice-text"></span></div>
+          <div class="stage-loading" id="stage-loading" hidden><span class="spinner"></span>読み込み中…</div>
+          <div class="divider" id="divider" role="slider" tabindex="0" aria-label="圧縮前と圧縮後の境目" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+            <span class="handle"><svg class="icon"><use href="#i-handle"/></svg></span>
+          </div>
+          <span class="stage-label stage-label-before" id="label-before"></span>
+          <span class="stage-label stage-label-after" id="label-after"></span>
+          <div class="canvas-tools" role="toolbar" aria-label="表示">
+            <button class="tool" type="button" id="zoom-out" aria-label="縮小" title="縮小"><svg class="icon"><use href="#i-minus"/></svg></button>
+            <label class="zoom-field" title="倍率"><input type="number" id="zoom-input" min="1" max="3200" step="1" value="100" aria-label="倍率（％）"><span aria-hidden="true">%</span></label>
+            <button class="tool" type="button" id="zoom-in" aria-label="拡大" title="拡大"><svg class="icon"><use href="#i-plus"/></svg></button>
+            <span class="tools-divider" aria-hidden="true"></span>
+            <button class="tool" type="button" id="zoom-fit" aria-label="画面に合わせる" title="画面に合わせる"><svg class="icon"><use href="#i-fit"/></svg></button>
+            <button class="tool" type="button" id="rotate" aria-label="右に90度回転" title="右に90度回転"><svg class="icon"><use href="#i-rotate"/></svg></button>
+          </div>
+        </div>
+
+        <div class="player" id="player" hidden>
+          <button class="play-button" id="play" type="button" aria-label="再生"><svg class="icon"><use id="play-icon" href="#i-play"/></svg></button>
+          <span class="time" id="time">0:00 / 0:00</span>
+          <div class="seek">
+            <span class="seek-rail"></span>
+            <span class="seek-preview" id="seek-preview" hidden></span>
+            <input type="range" id="seek" min="0" max="1" step="any" value="0" aria-label="再生位置">
+          </div>
+          <select class="audio-source" id="audio-source" aria-label="再生する音声">
+            <option value="before">音声：圧縮前</option>
+            <option value="after">音声：圧縮後</option>
+            <option value="none">ミュート</option>
+          </select>
+        </div>
+      </div>
+
+      <aside class="sidebar" aria-label="圧縮の設定">
+        <div class="sidebar-body">
+          <div class="settings" id="image-settings" hidden>
+            <section class="field-group">
+              <label class="field-label" for="img-format">出力形式</label>
+              <select id="img-format">
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+                <option value="png">PNG</option>
+              </select>
+              <p class="help" id="img-format-hint"></p>
+            </section>
+            <section class="field-group" id="img-quality-group">
+              <div class="field-label"><label for="img-quality">画質</label><output id="img-quality-value" for="img-quality"></output></div>
+              <input class="range" type="range" id="img-quality" min="1" max="100" step="1">
+              <div class="range-labels" aria-hidden="true"><span>サイズ優先</span><span>画質優先</span></div>
+            </section>
+            <section class="field-group">
+              <div class="field-label">
+                <label for="img-resize">サイズ変更</label>
+                <span class="switch"><input type="checkbox" id="img-resize" role="switch"><span class="switch-track"></span></span>
+              </div>
+              <div class="field-group" id="img-resize-fields" hidden>
+                <div class="size-inputs">
+                  <label>幅（px）<input class="input" type="number" id="img-width" min="1" max="16384" step="1" inputmode="numeric"></label>
+                  <span aria-hidden="true">×</span>
+                  <label>高さ（px）<input class="input" type="number" id="img-height" min="1" max="16384" step="1" inputmode="numeric"></label>
+                </div>
+                <label class="checkbox"><input type="checkbox" id="img-keep-ratio" checked>縦横比を保つ</label>
+                <div class="chips" id="img-scales">
+                  <button type="button" class="chip" data-scale="0.75">75%</button>
+                  <button type="button" class="chip" data-scale="0.5">50%</button>
+                  <button type="button" class="chip" data-scale="0.25">25%</button>
+                </div>
+              </div>
+              <p class="help" id="img-output-size"></p>
+            </section>
+            <div class="notes" id="img-notes"></div>
+          </div>
+
+          <fieldset class="settings" id="video-settings" hidden>
+            <legend class="visually-hidden">動画の圧縮設定</legend>
+            <section class="field-group">
+              <span class="field-label" id="mode-label">圧縮方法</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="mode-label">
+                <input type="radio" name="mode" id="mode-quality" value="quality" checked><label for="mode-quality">画質で選ぶ</label>
+                <input type="radio" name="mode" id="mode-size" value="size"><label for="mode-size">サイズを指定</label>
+              </div>
+            </section>
+            <section class="options" id="quality-options" role="radiogroup" aria-label="画質">
+              <label class="option"><input type="radio" name="preset" value="high"><span class="option-text"><b>高画質</b><small>解像度はそのまま</small></span><span class="option-estimate" data-preset="high"></span></label>
+              <label class="option"><input type="radio" name="preset" value="standard" checked><span class="option-text"><b>標準<span class="tag">おすすめ</span></b><small>1080pまで</small></span><span class="option-estimate" data-preset="standard"></span></label>
+              <label class="option"><input type="radio" name="preset" value="light"><span class="option-text"><b>軽量</b><small>720p・チャット向け</small></span><span class="option-estimate" data-preset="light"></span></label>
+              <label class="option"><input type="radio" name="preset" value="min"><span class="option-text"><b>最小</b><small>480p</small></span><span class="option-estimate" data-preset="min"></span></label>
+            </section>
+            <section class="field-group" id="size-options" hidden>
+              <label class="field-label" for="target-size">目標サイズ</label>
+              <div class="target-size"><input class="input" type="number" id="target-size" min="1" max="100000" step="1" value="25" inputmode="numeric"><span>MB 以下</span></div>
+              <div class="chips" id="target-chips">
+                <button type="button" class="chip" data-mb="10">10 MB</button>
+                <button type="button" class="chip" data-mb="25">25 MB</button>
+                <button type="button" class="chip" data-mb="50">50 MB</button>
+                <button type="button" class="chip" data-mb="100">100 MB</button>
+              </div>
+              <p class="help">解像度は目標に合わせて自動で選びます。目標を超えたときは自動で作り直します。</p>
+            </section>
+            <details class="advanced">
+              <summary>詳細設定<svg class="icon"><use href="#i-chevron-down"/></svg></summary>
+              <div class="advanced-fields">
+                <label class="field">解像度<select id="video-resolution"></select></label>
+                <label class="field">フレームレート
+                  <select id="video-fps">
+                    <option value="auto">自動</option>
+                    <option value="source">元のまま</option>
+                    <option value="30">30 fps</option>
+                    <option value="24">24 fps</option>
+                  </select>
+                </label>
+                <label class="field">コーデック
+                  <select id="video-codec">
+                    <option value="avc">H.264</option>
+                    <option value="hevc">H.265</option>
+                  </select>
+                </label>
+                <label class="field">音声
+                  <select id="video-audio">
+                    <option value="keep">そのまま</option>
+                    <option value="low">軽く（96 kbps）</option>
+                    <option value="mute">なし</option>
+                  </select>
+                </label>
+              </div>
+            </details>
+            <p class="help" id="preview-hint"></p>
+            <div class="notes" id="video-notes" role="status"></div>
+          </fieldset>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="summary" aria-live="polite">
+            <div class="summary-row">
+              <span class="summary-item"><span>圧縮前</span><strong id="sum-before">—</strong></span>
+              <svg class="icon summary-arrow"><use href="#i-arrow-right"/></svg>
+              <span class="summary-item"><span id="sum-after-label">圧縮後</span><strong id="sum-after">—</strong></span>
+              <span class="badge" id="sum-badge"></span>
+            </div>
+            <div class="meter"><span id="sum-bar"></span></div>
+          </div>
+          <div class="progress" id="progress" hidden>
+            <div class="progress-head"><span id="progress-label">圧縮中…</span><span id="progress-percent">0%</span></div>
+            <div class="meter" id="progress-bar" role="progressbar" aria-labelledby="progress-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div>
+            <div class="progress-foot"><span>残り <b id="progress-eta">計算中</b>・<b id="progress-speed">—</b></span><button class="link-button" id="cancel" type="button">中止</button></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="primary" type="button" disabled>ダウンロード</button>
+          <button class="link-button" id="secondary" type="button" hidden></button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
